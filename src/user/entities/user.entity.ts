@@ -8,7 +8,7 @@ export class User extends BaseEntity {
   @Column({ unique: true, length: 255 })
   email: string;
 
-  @Column({ name: 'password_hash', nullable: false })
+  @Column({ name: 'password_hash', nullable: false, select: false })
   passwordHash: string;
 
   @OneToMany(() => Event, (event) => event.creator)

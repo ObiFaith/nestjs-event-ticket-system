@@ -30,10 +30,11 @@ export class UserService {
    * @returns Promise<User>
    */
   async create(createUserDto: CreateUserDto) {
-    const user = this.userRepository.create({
-      ...createUserDto,
-      email: createUserDto.email.toLowerCase(),
-    });
-    return await this.userRepository.save(user);
+    return await this.userRepository.save(
+      this.userRepository.create({
+        ...createUserDto,
+        email: createUserDto.email.toLowerCase(),
+      }),
+    );
   }
 }

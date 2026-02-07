@@ -9,9 +9,12 @@ export enum CartStatus {
   CHECKED_OUT = 'CHECKED_OUT',
 }
 
-@Index(['user', 'status'])
+@Index(['userId', 'status'])
 @Entity('carts')
 export class Cart extends BaseEntity {
+  @Column({ name: 'user_id' })
+  userId: string;
+
   @ManyToOne(() => User, (user) => user.carts, { nullable: false })
   user: User;
 
@@ -19,6 +22,8 @@ export class Cart extends BaseEntity {
     type: 'enum',
     enum: CartStatus,
     default: CartStatus.ACTIVE,
+    comment:
+      'ACTIVE carts can reserve tickets; EXPIRED carts must release reservations',
   })
   status: CartStatus;
 

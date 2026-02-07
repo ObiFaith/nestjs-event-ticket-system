@@ -13,20 +13,31 @@ export class EventService {
     private readonly eventRepository: Repository<Event>,
   ) {}
 
+  /**
+   * Map Event entity to EventResponseDto
+   * @param event Event entity
+   * @returns EventResponseDto
+   */
   private mapToEventResponseDto(event: Event): EventResponseDto {
     return {
       id: event.id,
-      userId: event.creator.id,
+      creatorId: event.creator.id,
       title: event.title,
       description: event.description,
       status: event.status,
-      startTime: event.startsAt,
-      endTime: event.endsAt,
+      startsAt: event.startsAt,
+      endsAt: event.endsAt,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     };
   }
 
+  /**
+   * Create event for a user
+   * @param userId User id
+   * @param createEventDto Event details
+   * @returns Promise<{ message: string; event: EventResponseDto }>
+   */
   async create(
     userId: string,
     createEventDto: CreateEventDto,
@@ -50,18 +61,17 @@ export class EventService {
       throw new BadRequestException('Event endTime must be in the future');
     }
 
-    // create event
-    const event = this.eventRepository.create({
-      title,
-      description,
-      startsAt,
-      endsAt,
-      creator: { id: userId },
-      status: EventStatus.ACTIVE, // default state
-    });
-
-    // save event to db
-    await this.eventRepository.save(event);
+    // create and save event to db
+    const event = await this.eventRepository.save(
+      this.eventRepository.create({
+        title,
+        description,
+        startsAt,
+        endsAt,
+        creator: { id: userId },
+        status: EventStatus.ACTIVE, // default state
+      }),
+    );
 
     return {
       message: SYS_MSG.EVENT_CREATED_SUCCESSFULLY,

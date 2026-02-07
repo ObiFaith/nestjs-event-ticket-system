@@ -1,7 +1,7 @@
 import { User } from '../../user/entities/user.entity';
 import { BaseEntity } from '../../common/entities/base-entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { TicketType } from '../../ticket/entities/ticket-type.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 export enum EventStatus {
   ACTIVE = 'ACTIVE',
@@ -27,13 +27,18 @@ export class Event extends BaseEntity {
     type: 'enum',
     enum: EventStatus,
     default: EventStatus.ACTIVE,
+    comment: 'ENDED and CANCELLED events cannot accept ticket reservations',
   })
   status: EventStatus;
+
+  @Column({ name: 'creator_id' })
+  creatorId: string;
 
   @ManyToOne(() => User, (user) => user.events, {
     nullable: false,
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'creator_id' })
   creator: User;
 
   @OneToMany(() => TicketType, (ticket) => ticket.event)

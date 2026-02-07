@@ -24,13 +24,13 @@ export class EventResponseDto {
     description: 'Event start date/time',
     example: '2026-05-01T10:00:00Z',
   })
-  startTime: Date;
+  startsAt: Date;
 
   @ApiProperty({
     description: 'Event end date/time',
     example: '2026-05-01T18:00:00Z',
   })
-  endTime: Date;
+  endsAt: Date;
 
   @ApiProperty({ description: 'Status of the event', example: 'ACTIVE' })
   status: EventStatus;
@@ -39,7 +39,7 @@ export class EventResponseDto {
     description: 'ID of the event creator',
     example: 'user_789xyz',
   })
-  userId: string;
+  creatorId: string;
 
   @ApiProperty({
     description: 'Event creation timestamp',
