@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { TicketModule } from './ticket/ticket.module';
 import { EventModule } from './event/event.module';
 import { CartModule } from './cart/cart.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CartModule } from './cart/cart.module';
     TicketModule,
     EventModule,
     CartModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],
