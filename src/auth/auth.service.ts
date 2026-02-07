@@ -1,13 +1,11 @@
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
-import { RegisterDto } from './dto/register.dto';
+import { UserResponseDto } from 'src/user/dto';
 import { UserService } from 'src/user/user.service';
-import { AuthResponseDto } from './dto/response.dto';
 import { User } from 'src/user/entities/user.entity';
 import * as SYS_MSG from 'src/constants/system-messages';
-import { UserResponseDto } from 'src/user/dto/responses.dto';
+import { AuthResponseDto, LoginDto, RegisterDto } from './dto';
 import { ConflictException, Injectable } from '@nestjs/common';
 
 @Injectable()
