@@ -1,0 +1,19 @@
+import { Column, Entity, OneToMany } from 'typeorm';
+import { Cart } from '../../cart/entities/cart.entity';
+import { Event } from '../../event/entities/event.entity';
+import { BaseEntity } from '../../common/entities/base-entity';
+
+@Entity('users')
+export class User extends BaseEntity {
+  @Column({ unique: true, length: 255 })
+  email: string;
+
+  @Column({ name: 'password_hash', nullable: false })
+  passwordHash: string;
+
+  @OneToMany(() => Event, (event) => event.creator)
+  events: Event[];
+
+  @OneToMany(() => Cart, (cart) => cart.user)
+  carts: Cart[];
+}
