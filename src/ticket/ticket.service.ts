@@ -120,8 +120,12 @@ export class TicketService {
     };
   }
 
-  async findAllTicketType() {
-    const ticketTypes = await this.ticketTypeRepository.find();
+  async findAllTicketType(eventId: string) {
+    const ticketTypes = await this.ticketTypeRepository.find({
+      where: {
+        event: { id: eventId },
+      },
+    });
 
     return {
       message: SYS_MSG.TICKET_TYPES_RETRIEVED_SUCCESSFULLY,
@@ -129,9 +133,12 @@ export class TicketService {
     };
   }
 
-  async findTicketType(id: string) {
+  async findTicketType(eventId: string, ticketId: string) {
     const ticketType = await this.ticketTypeRepository.findOne({
-      where: { id },
+      where: {
+        id: ticketId,
+        event: { id: eventId },
+      },
     });
 
     if (!ticketType) throw new NotFoundException(SYS_MSG.TICKET_TYPE_NOT_FOUND);
@@ -142,8 +149,12 @@ export class TicketService {
     };
   }
 
-  async updateTicketType(id: string, dto: UpdateTicketTypeDto) {
-    const { ticketType } = await this.findTicketType(id);
+  async updateTicketType(
+    eventId: string,
+    ticketId: string,
+    dto: UpdateTicketTypeDto,
+  ) {
+    const { ticketType } = await this.findTicketType(eventId, ticketId);
     Object.assign(ticketType, dto);
 
     try {

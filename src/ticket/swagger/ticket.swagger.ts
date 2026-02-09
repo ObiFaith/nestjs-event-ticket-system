@@ -7,13 +7,14 @@ import {
   UpdateTicketTypeDto,
 } from '../dto';
 
-export function swaggerCreateTicket() {
+export function swaggerCreateTicketType() {
   return applyDecorators(
     ApiOperation({
       summary: 'Create a ticket type for an event',
       description:
         'Only the event creator can add ticket types with limited quantity and sale window.',
     }),
+    ApiParam({ name: 'eventId', description: 'Event ID', required: true }),
     ApiBody({ type: CreateTicketTypeDto }),
     ApiResponse({
       status: 201,
@@ -39,30 +40,18 @@ export function swaggerCreateTicket() {
   );
 }
 
-export function swaggerCreateTicketType() {
-  return applyDecorators(
-    ApiOperation({
-      summary: 'Create a new ticket type',
-      description: 'Create ticket type for an event.',
-    }),
-    ApiBody({ type: CreateTicketTypeDto }),
-    ApiResponse({
-      status: 201,
-      description: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
-      type: TicketTypeResponseDto,
-    }),
-    ApiResponse({ status: 400, description: SYS_MSG.BAD_REQUEST }),
-    ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
-  );
-}
-
 export function swaggerGetTicketType() {
   return applyDecorators(
     ApiOperation({
       summary: 'Get a ticket type by ID',
-      description: 'Retrieve a single ticket type details.',
+      description: 'Retrieve a single ticket type for a specific event.',
     }),
-    ApiParam({ name: 'id', description: 'Ticket type ID' }),
+    ApiParam({ name: 'eventId', description: 'Event ID', required: true }),
+    ApiParam({
+      name: 'ticketId',
+      description: 'Ticket type ID',
+      required: true,
+    }),
     ApiResponse({
       status: 200,
       description: SYS_MSG.TICKET_TYPE_RETRIEVED_SUCCESSFULLY,
@@ -76,8 +65,9 @@ export function swaggerGetAllTicketTypes() {
   return applyDecorators(
     ApiOperation({
       summary: 'Get all ticket types',
-      description: 'Retrieve all ticket types for an event.',
+      description: 'Retrieve all ticket types for a specific event.',
     }),
+    ApiParam({ name: 'eventId', description: 'Event ID', required: true }),
     ApiResponse({
       status: 200,
       description: SYS_MSG.TICKET_TYPES_RETRIEVED_SUCCESSFULLY,
@@ -90,9 +80,14 @@ export function swaggerUpdateTicketType() {
   return applyDecorators(
     ApiOperation({
       summary: 'Update a ticket type',
-      description: 'Update ticket type details for an event.',
+      description: 'Update ticket type for a specific event.',
     }),
-    ApiParam({ name: 'id', description: 'Ticket type ID' }),
+    ApiParam({ name: 'eventId', description: 'Event ID', required: true }),
+    ApiParam({
+      name: 'ticketId',
+      description: 'Ticket type ID',
+      required: true,
+    }),
     ApiBody({ type: UpdateTicketTypeDto }),
     ApiResponse({
       status: 200,

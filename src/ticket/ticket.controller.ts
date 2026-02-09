@@ -15,7 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
-  swaggerCreateTicket,
+  swaggerCreateTicketType,
   swaggerGetAllTicketTypes,
   swaggerGetTicketType,
   swaggerUpdateTicketType,
@@ -29,7 +29,7 @@ export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
   @Post('events/:eventId/tickets')
-  @swaggerCreateTicket()
+  @swaggerCreateTicketType()
   @HttpCode(HttpStatus.CREATED)
   createType(
     @User('id') userId: string,
@@ -45,19 +45,26 @@ export class TicketController {
 
   @Get('/events/:eventId/tickets')
   @swaggerGetAllTicketTypes()
-  findAll() {
-    return this.ticketService.findAllTicketType();
+  findAllTicketType(@Param('eventId') eventId: string) {
+    return this.ticketService.findAllTicketType(eventId);
   }
 
   @Get('/events/:eventId/tickets/:ticketId')
   @swaggerGetTicketType()
-  findOne(@Param('id') id: string) {
-    return this.ticketService.findTicketType(id);
+  findTicketType(
+    @Param('eventId') eventId: string,
+    @Param('ticketId') ticketId: string,
+  ) {
+    return this.ticketService.findTicketType(eventId, ticketId);
   }
 
   @Patch('/events/:eventId/tickets/:ticketId')
   @swaggerUpdateTicketType()
-  update(@Param('id') id: string, @Body() dto: UpdateTicketTypeDto) {
-    return this.ticketService.updateTicketType(id, dto);
+  updateTicketType(
+    @Param('eventId') eventId: string,
+    @Param('ticketId') ticketId: string,
+    @Body() dto: UpdateTicketTypeDto,
+  ) {
+    return this.ticketService.updateTicketType(eventId, ticketId, dto);
   }
 }
