@@ -1,11 +1,14 @@
 import { applyDecorators } from '@nestjs/common';
 import * as SYS_MSG from 'src/constants/system-messages';
-import { CreateTicketTypeDto, TicketTypeResponseDto } from '../dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  CreateTicketTypeDto,
+  TicketTypeResponseDto,
+  UpdateTicketTypeDto,
+} from '../dto';
 
 export function swaggerCreateTicket() {
   return applyDecorators(
-    ApiTags('Tickets'),
     ApiOperation({
       summary: 'Create a ticket type for an event',
       description:
@@ -33,5 +36,84 @@ export function swaggerCreateTicket() {
       status: 404,
       description: SYS_MSG.EVENT_NOT_FOUND,
     }),
+  );
+}
+
+export function swaggerCreateTicketType() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Create a new ticket type',
+      description: 'Create ticket type for an event.',
+    }),
+    ApiBody({ type: CreateTicketTypeDto }),
+    ApiResponse({
+      status: 201,
+      description: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
+      type: TicketTypeResponseDto,
+    }),
+    ApiResponse({ status: 400, description: SYS_MSG.BAD_REQUEST }),
+    ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
+  );
+}
+
+export function swaggerGetTicketType() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get a ticket type by ID',
+      description: 'Retrieve a single ticket type details.',
+    }),
+    ApiParam({ name: 'id', description: 'Ticket type ID' }),
+    ApiResponse({
+      status: 200,
+      description: SYS_MSG.TICKET_TYPE_RETRIEVED_SUCCESSFULLY,
+      type: TicketTypeResponseDto,
+    }),
+    ApiResponse({ status: 404, description: SYS_MSG.TICKET_TYPE_NOT_FOUND }),
+  );
+}
+
+export function swaggerGetAllTicketTypes() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Get all ticket types',
+      description: 'Retrieve all ticket types for an event.',
+    }),
+    ApiResponse({
+      status: 200,
+      description: SYS_MSG.TICKET_TYPES_RETRIEVED_SUCCESSFULLY,
+      type: [TicketTypeResponseDto],
+    }),
+  );
+}
+
+export function swaggerUpdateTicketType() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Update a ticket type',
+      description: 'Update ticket type details for an event.',
+    }),
+    ApiParam({ name: 'id', description: 'Ticket type ID' }),
+    ApiBody({ type: UpdateTicketTypeDto }),
+    ApiResponse({
+      status: 200,
+      description: SYS_MSG.TICKET_TYPE_UPDATED_SUCCESSFULLY,
+      type: TicketTypeResponseDto,
+    }),
+    ApiResponse({ status: 400, description: SYS_MSG.BAD_REQUEST }),
+    ApiResponse({ status: 404, description: SYS_MSG.TICKET_TYPE_NOT_FOUND }),
+  );
+}
+
+export function swaggerDeleteTicketType() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'Delete a ticket type',
+      description: 'Delete ticket type (soft delete recommended).',
+    }),
+    ApiParam({ name: 'id', description: 'Ticket type ID' }),
+    ApiResponse({
+      status: 204,
+    }),
+    ApiResponse({ status: 404, description: SYS_MSG.TICKET_TYPE_NOT_FOUND }),
   );
 }

@@ -22,6 +22,12 @@ export const EVENTS_RETRIEVED_SUCCESSFULLY = 'Events retrieved successfully';
 export const TICKET_TYPE_NOT_FOUND = 'Ticket type not found';
 export const TICKET_TYPE_CREATED_SUCCESSFULLY =
   'Ticket type created successfully';
+export const TICKET_TYPE_UPDATED_SUCCESSFULLY =
+  'Ticket type updated successfully';
+export const TICKET_TYPE_RETRIEVED_SUCCESSFULLY =
+  'Ticket type retrieved successfully';
+export const TICKET_TYPES_RETRIEVED_SUCCESSFULLY =
+  'Ticket types retrieved successfully';
 
 // Cart / CartItem
 export const CART_NOT_FOUND = 'Cart not found';

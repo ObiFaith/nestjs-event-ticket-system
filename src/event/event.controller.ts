@@ -27,7 +27,6 @@ import {
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
-  // --- POST: CREATE EVENT ---
   @Post()
   @UseGuards(JwtAuthGuard)
   @swaggerCreateEvent()

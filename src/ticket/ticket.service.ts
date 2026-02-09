@@ -1,14 +1,15 @@
 import { TicketTypeResponseDto } from './dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateTicketTypeDto } from './dto/ticket.dto';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { TicketType } from './entities/ticket-type.entity';
+import { CreateTicketTypeDto, UpdateTicketTypeDto } from './dto';
 import { Event, EventStatus } from 'src/event/entities/event.entity';
 import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 
@@ -17,6 +18,8 @@ export class TicketService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(TicketType)
+    private readonly ticketTypeRepository: Repository<TicketType>,
 
     private readonly dataSource: DataSource, // For transactions
   ) {}
@@ -51,7 +54,7 @@ export class TicketService {
    * @param eventId Event id
    * @param CreateTicketTypeDto Ticket type dto
    */
-  async createType(
+  async createTicketType(
     userId: string,
     eventId: string,
     CreateTicketTypeDto: CreateTicketTypeDto,
@@ -115,5 +118,44 @@ export class TicketService {
       message: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
       ticket: this.mapToTicketTypeResponseDto(ticket),
     };
+  }
+
+  async findAllTicketType() {
+    const ticketTypes = await this.ticketTypeRepository.find();
+
+    return {
+      message: SYS_MSG.TICKET_TYPES_RETRIEVED_SUCCESSFULLY,
+      ticketTypes,
+    };
+  }
+
+  async findTicketType(id: string) {
+    const ticketType = await this.ticketTypeRepository.findOne({
+      where: { id },
+    });
+
+    if (!ticketType) throw new NotFoundException(SYS_MSG.TICKET_TYPE_NOT_FOUND);
+
+    return {
+      message: SYS_MSG.TICKET_TYPE_RETRIEVED_SUCCESSFULLY,
+      ticketType,
+    };
+  }
+
+  async updateTicketType(id: string, dto: UpdateTicketTypeDto) {
+    const { ticketType } = await this.findTicketType(id);
+    Object.assign(ticketType, dto);
+
+    try {
+      const updatedticketType =
+        await this.ticketTypeRepository.save(ticketType);
+
+      return {
+        message: SYS_MSG.TICKET_TYPE_UPDATED_SUCCESSFULLY,
+        ticketType: updatedticketType,
+      };
+    } catch {
+      throw new InternalServerErrorException('Failed to update ticketType');
+    }
   }
 }

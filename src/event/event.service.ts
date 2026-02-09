@@ -7,6 +7,7 @@ import { Event, EventStatus } from './entities/event.entity';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 
@@ -72,17 +73,19 @@ export class EventService {
     };
   }
 
-  async update(
-    id: string,
-    updateDto: UpdateEventDto,
-  ): Promise<{ message: string; event: EventResponseDto }> {
+  async update(id: string, updateDto: UpdateEventDto) {
     const { event } = await this.findOne(id);
     Object.assign(event, updateDto);
-    const updatedEvent = await this.eventRepository.save(event);
 
-    return {
-      message: SYS_MSG.EVENT_UPDATED_SUCCESSFULLY,
-      event: updatedEvent,
-    };
+    try {
+      const updatedEvent = await this.eventRepository.save(event);
+
+      return {
+        message: SYS_MSG.EVENT_UPDATED_SUCCESSFULLY,
+        event: updatedEvent,
+      };
+    } catch {
+      throw new InternalServerErrorException('Failed to update event');
+    }
   }
 }
