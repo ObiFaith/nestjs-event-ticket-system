@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { CartItem } from './entities/cart-item.entity';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { Cart, CartStatus } from './entities/cart.entity';
@@ -42,11 +42,6 @@ export class CartService {
 
   /**
    * Add tickets to the user's cart
-   * Ensures:
-   * - Row-level lock on ticket type
-   * - One active cart per user
-   * - Cart expiration handled
-   * - Concurrency-safe reservation
    * @param userId User id
    * @param cartItemDto cart item details
    */
@@ -57,6 +52,7 @@ export class CartService {
 
     // Transaction creation
     const cart = await this.dataSource.transaction(async (manager) => {
+      const now = new Date();
       // Check ticket type already exists
       const ticketType = await manager.findOne(TicketType, {
         where: { id: ticketTypeId },
@@ -73,21 +69,17 @@ export class CartService {
         select: ['status', 'endsAt'],
       });
 
-      if (!event) {
-        throw new NotFoundException(SYS_MSG.EVENT_NOT_FOUND);
-      }
-      if (event.status !== EventStatus.ACTIVE) {
-        throw new BadRequestException('Cannot reserve tickets for this event');
-      }
+      const validationErrors = [
+        !event && SYS_MSG.EVENT_NOT_FOUND,
+        event?.status !== EventStatus.ACTIVE &&
+          'Cannot reserve tickets for this event',
+        event && now > event.endsAt && 'Event has ended',
+        (ticketType.saleStartsAt > now || ticketType.saleEndsAt < now) &&
+          'Ticket sale period is not active',
+      ].filter(Boolean);
 
-      const now = new Date();
-
-      if (now > event.endsAt) {
-        throw new BadRequestException('Event has ended');
-      }
-      // Ticket sale window check
-      if (ticketType.saleStartsAt > now || ticketType.saleEndsAt < now) {
-        throw new BadRequestException('Ticket sale period is not active');
+      if (validationErrors.length > 0) {
+        throw new BadRequestException(validationErrors[0] as string);
       }
 
       // Check availability
@@ -108,24 +100,23 @@ export class CartService {
 
       // Expire old cart if needed
       if (cart && cart.expiresAt < now) {
-        cart.status = CartStatus.EXPIRED;
+        const ticketTypeIds = cart.items.map((item) => item.ticketTypeId);
+        const ticketTypes = await manager.find(TicketType, {
+          where: { id: In(ticketTypeIds) },
+          lock: { mode: 'pessimistic_write' },
+        });
+        const map = new Map(ticketTypes.map((t) => [t.id, t]));
 
-        // Release reservations for expired cart items
         for (const item of cart.items) {
-          const itemTicketType = await manager.findOne(TicketType, {
-            where: { id: item.ticketTypeId },
-            lock: { mode: 'pessimistic_write' }, // Row-level lock
-          });
-
-          if (itemTicketType) {
-            itemTicketType.reservedQuantity -= item.quantity;
-            await manager.save(itemTicketType);
-          }
+          map.get(item.ticketTypeId)!.reservedQuantity -= item.quantity;
         }
 
+        await manager.save(ticketTypes);
+        cart.status = CartStatus.EXPIRED;
         await manager.save(cart);
-        cart = null; // force new cart creation
+        cart = null;
       }
+
       // Create new cart if empty
       if (!cart) {
         cart = manager.create(Cart, {
@@ -161,9 +152,12 @@ export class CartService {
       }
 
       await manager.save(cartItem);
-      // Update reserved quantity on TicketType
-      ticketType.reservedQuantity += quantity;
-      await manager.save(ticketType);
+      await manager.increment(
+        TicketType,
+        { id: ticketTypeId },
+        'reservedQuantity',
+        quantity,
+      );
 
       // Return updated cart
       return await manager.findOne(Cart, {
