@@ -1,7 +1,14 @@
 import { CartItem } from './cart-item.entity';
 import { User } from '../../user/entities/user.entity';
 import { BaseEntity } from '../../common/entities/base-entity';
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 export enum CartStatus {
   ACTIVE = 'ACTIVE',
@@ -16,6 +23,7 @@ export class Cart extends BaseEntity {
   userId: string;
 
   @ManyToOne(() => User, (user) => user.carts, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({

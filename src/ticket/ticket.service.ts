@@ -69,17 +69,14 @@ export class TicketService {
     if (event.creatorId != userId) {
       throw new ForbiddenException('Only the event creator can add tickets');
     }
-    // Validate event status
-    if (
-      event.status === EventStatus.CANCELLED ||
-      event.status === EventStatus.ENDED
-    ) {
+    // Check event status is active
+    if (event.status !== EventStatus.ACTIVE) {
       throw new BadRequestException(
         'Cannot add tickets to cancelled or ended events',
       );
     }
 
-    const { name, totalQuantity, price, currency, saleStart, saleEnd } =
+    const { name, saleStartsAt, saleEndsAt, totalQuantity } =
       CreateTicketTypeDto;
 
     // Validate input
@@ -89,39 +86,27 @@ export class TicketService {
     if (totalQuantity <= 0) {
       throw new BadRequestException('Total quantity must be greater than 0');
     }
-
-    // parse saleStart & saleEnd
-    const saleStartDate = new Date(saleStart);
-    const saleEndDate = new Date(saleEnd);
-
-    // validate ticket sales interval
-    if (saleStartDate < new Date()) {
-      throw new BadRequestException('Ticket saleStart cannot be in the past');
-    }
-
-    if (saleStartDate >= saleEndDate) {
-      throw new BadRequestException('saleStart must be before saleEnd');
-    }
-
-    if (saleEndDate > new Date(event.endsAt)) {
+    // Ticket sale must be within event lifespan
+    if (saleStartsAt < event.startsAt || saleEndsAt > event.endsAt) {
       throw new BadRequestException(
-        'Ticket saleEnd cannot be after event end time',
+        'Ticket sale period must fall within event duration',
       );
+    }
+    if (saleStartsAt >= saleEndsAt) {
+      throw new BadRequestException('Invalid ticket sale timeframe');
     }
 
     // Transaction creation
     const ticket = await this.dataSource.transaction(async (manager) => {
       return await manager.save(
         manager.create(TicketType, {
-          event,
+          ...CreateTicketTypeDto,
           name: name.trim(),
-          price,
-          currency,
-          totalQuantity,
           reservedQuantity: 0,
           soldQuantity: 0,
-          saleStartsAt: saleStartDate,
-          saleEndsAt: saleEndDate,
+          saleStartsAt,
+          saleEndsAt,
+          eventId,
         }),
       );
     });

@@ -13,6 +13,7 @@ export class CartItem extends BaseEntity {
     nullable: false,
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'cart_id' })
   cart: Cart;
 
   @Column({ name: 'ticket_type_id' })

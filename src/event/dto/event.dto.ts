@@ -25,15 +25,15 @@ export class CreateEventDto {
 
   @ApiProperty({
     description: 'Event start date/time in ISO format',
-    example: '2026-05-01T10:00:00Z',
+    example: '2026-07-02T10:00:00Z',
   })
   @IsDateString()
-  startTime: string; // ISO date string
+  startsAt: string; // ISO date string
 
   @ApiProperty({
     description: 'Event end date/time in ISO format',
-    example: '2026-05-01T18:00:00Z',
+    example: '2026-11-02T20:00:00Z',
   })
   @IsDateString()
-  endTime: string; // ISO date string
+  endsAt: string; // ISO date string
 }

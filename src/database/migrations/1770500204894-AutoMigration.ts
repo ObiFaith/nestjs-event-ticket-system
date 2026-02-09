@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
+
 export class AutoMigration1770500204894 implements MigrationInterface {
     name = 'AutoMigration1770500204894'
 
@@ -11,6 +12,7 @@ export class AutoMigration1770500204894 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "carts" ADD "user_id" character varying NOT NULL`);
         await queryRunner.query(`COMMENT ON COLUMN "events"."status" IS 'ENDED and CANCELLED events cannot accept ticket reservations'`);
         await queryRunner.query(`COMMENT ON COLUMN "carts"."status" IS 'ACTIVE carts can reserve tickets; EXPIRED carts must release reservations'`);
+        await queryRunner.query(`ALTER TABLE "ticket_types" ADD "event_id" uuid NOT NULL`);
         await queryRunner.query(`CREATE INDEX "IDX_9dfa62b35548ea1e0b7e4675b2" ON "ticket_types" ("event_id") `);
         await queryRunner.query(`CREATE INDEX "IDX_977625e8b50621bfb1c7f3d02b" ON "carts" ("user_id", "status") `);
     }

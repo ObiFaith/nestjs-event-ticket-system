@@ -21,7 +21,7 @@ export class EventService {
   private mapToEventResponseDto(event: Event): EventResponseDto {
     return {
       id: event.id,
-      creatorId: event.creator.id,
+      creatorId: event.creatorId,
       title: event.title,
       description: event.description,
       status: event.status,
@@ -42,33 +42,23 @@ export class EventService {
     userId: string,
     createEventDto: CreateEventDto,
   ): Promise<{ message: string; event: EventResponseDto }> {
-    const { title, startTime, endTime, description } = createEventDto;
-
-    // validate input
-    if (!title || !startTime || !endTime) {
+    const { title, startsAt, endsAt } = createEventDto;
+    // Validate input
+    if (!title.trim() || !startsAt || !endsAt) {
       throw new BadRequestException('Missing required fields');
     }
 
-    // parse startTime & endTime
-    const startsAt = new Date(startTime);
-    const endsAt = new Date(endTime);
-
     // validate event interval
     if (startsAt >= endsAt) {
-      throw new BadRequestException('Event startTime must be before endTime');
-    }
-    if (endsAt <= new Date()) {
-      throw new BadRequestException('Event endTime must be in the future');
+      throw new BadRequestException('Event startsAt must be before endsAt');
     }
 
     // create and save event to db
     const event = await this.eventRepository.save(
       this.eventRepository.create({
-        title,
-        description,
-        startsAt,
-        endsAt,
-        creator: { id: userId },
+        ...createEventDto,
+        title: title.trim(),
+        creatorId: userId,
         status: EventStatus.ACTIVE, // default state
       }),
     );

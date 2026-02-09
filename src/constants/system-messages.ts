@@ -16,9 +16,10 @@ export const EVENT_NOT_FOUND = 'Event not found';
 export const EVENT_CREATED_SUCCESSFULLY = 'Event created successfully';
 
 // Ticket
+export const TICKET_TYPE_NOT_FOUND = 'Ticket type not found';
 export const TICKET_TYPE_CREATED_SUCCESSFULLY =
   'Ticket type created successfully';
-export const ONLY_EVENT_CREATOR_CAN_ADD_TICKETS =
-  'Only the event creator can add tickets';
-export const CANNOT_ADD_TICKETS_TO_CANCELLED_OR_ENDED_EVENTS =
-  'Cannot add tickets to cancelled or ended events';
+
+// Cart / CartItem
+export const CART_NOT_FOUND = 'Cart not found';
+export const CART_ITEM_ADDED_SUCCESSFULLY = 'Cart item added successfully';

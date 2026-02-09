@@ -4,7 +4,7 @@ import { EventStatus } from '../entities/event.entity';
 export class EventResponseDto {
   @ApiProperty({
     description: 'Unique identifier of the event',
-    example: 'evt_123abc',
+    example: 'd9a2f1b3-7c8d-4e1f-9a2b-3c4d5e6f7g8h',
   })
   id: string;
 
@@ -37,7 +37,7 @@ export class EventResponseDto {
 
   @ApiProperty({
     description: 'ID of the event creator',
-    example: 'user_789xyz',
+    example: 'd9a2f1b3-7c8d-4e1f-9a2b-3c4d5e6f7g8h',
   })
   creatorId: string;
 

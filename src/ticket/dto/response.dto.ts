@@ -3,11 +3,14 @@ import { ApiProperty } from '@nestjs/swagger';
 export class TicketTypeResponseDto {
   @ApiProperty({
     description: 'Unique identifier of the ticket type',
-    example: 'ticket_456def',
+    example: 'd9a2f1b3-7c8d-4e1f-9a2b-3c4d5e6f7g8h',
   })
   id: string;
 
-  @ApiProperty({ description: 'Associated event ID', example: 'evt_123abc' })
+  @ApiProperty({
+    description: 'Associated event ID',
+    example: 'd9a2f1b3-7c8d-4e1f-9a2b-3c4d5e6f7g8h',
+  })
   eventId: string;
 
   @ApiProperty({ description: 'Ticket type name', example: 'VIP Pass' })
