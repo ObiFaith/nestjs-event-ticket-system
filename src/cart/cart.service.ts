@@ -61,6 +61,14 @@ export class CartService {
       // Check ticket type already exists
       const ticketType = await manager.findOne(TicketType, {
         where: { id: ticketTypeId },
+        select: [
+          'eventId',
+          'saleEndsAt',
+          'saleStartsAt',
+          'soldQuantity',
+          'totalQuantity',
+          'reservedQuantity',
+        ],
         lock: { mode: 'pessimistic_write' }, // Row-level lock
       });
 
@@ -134,9 +142,7 @@ export class CartService {
         cart.items = [];
       }
 
-      let cartItem = await manager.findOne(CartItem, {
-        where: { cartId: cart.id, ticketTypeId },
-      });
+      let cartItem = cart.items.find((i) => i.ticketTypeId === ticketTypeId);
 
       // Add or update cart item
       if (!cartItem) {
