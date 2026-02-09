@@ -45,14 +45,14 @@ export class CreateTicketTypeDto {
 
   @ApiProperty({
     description: 'Sale start date/time in ISO format',
-    example: '2026-07-02T10:00:00Z',
+    example: '2026-02-09T00:00:00Z',
   })
   @IsDateString()
   saleStartsAt: Date;
 
   @ApiProperty({
     description: 'Sale end date/time in ISO format',
-    example: '2026-11-02T18:00:00Z',
+    example: '2026-02-15T18:00:00Z',
   })
   @IsDateString()
   saleEndsAt: Date;

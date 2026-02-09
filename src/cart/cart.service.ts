@@ -100,11 +100,10 @@ export class CartService {
         throw new BadRequestException('Not enough tickets available');
       }
 
-      //  Fetch or create active cart
       let cart = await manager.findOne(Cart, {
         where: { userId, status: CartStatus.ACTIVE },
+        relations: ['items'],
         select: ['id', 'expiresAt', 'status'],
-        lock: { mode: 'pessimistic_write' }, // Lock cart row for safety
       });
 
       // Expire old cart if needed
@@ -139,12 +138,11 @@ export class CartService {
         cart.items = [];
       }
 
-      // Add or update cart item
       let cartItem = await manager.findOne(CartItem, {
-        where: { ticketTypeId },
-        select: ['quantity'],
+        where: { cartId: cart.id, ticketTypeId },
       });
 
+      // Add or update cart item
       if (!cartItem) {
         cartItem = manager.create(CartItem, {
           cartId: cart.id,
