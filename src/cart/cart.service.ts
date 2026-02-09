@@ -1,7 +1,8 @@
-import { DataSource, In } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CartItem } from './entities/cart-item.entity';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { Cart, CartStatus } from './entities/cart.entity';
+import { DataSource, In, MoreThan, Repository } from 'typeorm';
 import { TicketType } from 'src/ticket/entities/ticket-type.entity';
 import { Event, EventStatus } from 'src/event/entities/event.entity';
 import { CartItemDto, CartItemResponseDto, CartResponseDto } from './dto';
@@ -13,7 +14,11 @@ import {
 
 @Injectable()
 export class CartService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>,
+  ) {}
 
   private mapToCartItemResponseDto(cartItem: CartItem): CartItemResponseDto {
     return {
@@ -169,6 +174,21 @@ export class CartService {
     return {
       message: SYS_MSG.CART_ITEM_ADDED_SUCCESSFULLY,
       cart: cart ? this.mapToCartResponseDto(cart) : cart,
+    };
+  }
+
+  async getActiveCart(userId: string) {
+    const cart = await this.cartRepository.findOne({
+      where: {
+        userId,
+        expiresAt: MoreThan(new Date()),
+      },
+      relations: ['items'],
+    });
+
+    return {
+      message: SYS_MSG.CART_RETRIEVED_SUCCESSFULLY,
+      cart: cart ? cart : [],
     };
   }
 }

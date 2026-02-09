@@ -3,10 +3,14 @@ import { CartService } from './cart.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/decorator/user.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { swaggerAddCartItem } from './swagger/cart-item.swagger';
+import {
+  swaggerAddCartItem,
+  swaggerGetActiveCart,
+} from './swagger/cart-item.swagger';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -15,16 +19,22 @@ import {
 
 @ApiBearerAuth()
 @ApiTags('Carts')
-@UseGuards(JwtAuthGuard)
 @Controller('cart')
+@UseGuards(JwtAuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  // --- POST: ADD ITEM TO CART ---
   @Post('items')
   @swaggerAddCartItem()
   @HttpCode(HttpStatus.CREATED)
   addToCart(@User('id') userId: string, @Body() cartItemDto: CartItemDto) {
     return this.cartService.addToCart(userId, cartItemDto);
+  }
+
+  @Get()
+  @swaggerGetActiveCart()
+  @HttpCode(HttpStatus.OK)
+  getActiveCart(@User('id') userId: string) {
+    return this.cartService.getActiveCart(userId);
   }
 }

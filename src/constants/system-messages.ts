@@ -31,4 +31,7 @@ export const TICKET_TYPES_RETRIEVED_SUCCESSFULLY =
 
 // Cart / CartItem
 export const CART_NOT_FOUND = 'Cart not found';
+export const CART_RETRIEVED_SUCCESSFULLY = 'Cart retrieved successfully';
 export const CART_ITEM_ADDED_SUCCESSFULLY = 'Cart item added successfully';
+export const CART_ITEM_UPDATED_SUCCESSFULLY = 'Cart item updated successfully';
+export const CART_ITEM_REMOVED_SUCCESSFULLY = 'Cart item removed successfully';
