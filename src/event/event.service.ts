@@ -1,10 +1,14 @@
 import { Repository } from 'typeorm';
 import { EventResponseDto } from './dto';
-import { CreateEventDto } from './dto/event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateEventDto, UpdateEventDto } from './dto';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { Event, EventStatus } from './entities/event.entity';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class EventService {
@@ -12,25 +16,6 @@ export class EventService {
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
   ) {}
-
-  /**
-   * Map Event entity to EventResponseDto
-   * @param event Event entity
-   * @returns EventResponseDto
-   */
-  private mapToEventResponseDto(event: Event): EventResponseDto {
-    return {
-      id: event.id,
-      creatorId: event.creatorId,
-      title: event.title,
-      description: event.description,
-      status: event.status,
-      startsAt: event.startsAt,
-      endsAt: event.endsAt,
-      createdAt: event.createdAt,
-      updatedAt: event.updatedAt,
-    };
-  }
 
   /**
    * Create event for a user
@@ -65,7 +50,39 @@ export class EventService {
 
     return {
       message: SYS_MSG.EVENT_CREATED_SUCCESSFULLY,
-      event: this.mapToEventResponseDto(event),
+      event,
+    };
+  }
+
+  async findAll(): Promise<{ message: string; events: Event[] }> {
+    const events = await this.eventRepository.find();
+    return {
+      message: SYS_MSG.EVENTS_RETRIEVED_SUCCESSFULLY,
+      events,
+    };
+  }
+
+  async findOne(id: string): Promise<{ message: string; event: Event }> {
+    const event = await this.eventRepository.findOne({ where: { id } });
+    if (!event) throw new NotFoundException(SYS_MSG.EVENT_NOT_FOUND);
+
+    return {
+      message: SYS_MSG.EVENT_RETRIEVED_SUCCESSFULLY,
+      event,
+    };
+  }
+
+  async update(
+    id: string,
+    updateDto: UpdateEventDto,
+  ): Promise<{ message: string; event: EventResponseDto }> {
+    const { event } = await this.findOne(id);
+    Object.assign(event, updateDto);
+    const updatedEvent = await this.eventRepository.save(event);
+
+    return {
+      message: SYS_MSG.EVENT_UPDATED_SUCCESSFULLY,
+      event: updatedEvent,
     };
   }
 }
