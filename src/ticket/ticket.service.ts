@@ -1,4 +1,3 @@
-import { TicketTypeResponseDto } from './dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as SYS_MSG from 'src/constants/system-messages';
@@ -25,43 +24,19 @@ export class TicketService {
   ) {}
 
   /**
-   * Map TicketType entity to TicketTypeResponseDto
-   * @param ticket TicketType entity
-   * @returns TicketTypeResponseDto
-   */
-  private mapToTicketTypeResponseDto(
-    ticket: TicketType,
-  ): TicketTypeResponseDto {
-    return {
-      id: ticket.id,
-      eventId: ticket.eventId,
-      name: ticket.name,
-      price: ticket.price,
-      currency: ticket.currency,
-      totalQuantity: ticket.totalQuantity,
-      reservedQuantity: ticket.reservedQuantity,
-      soldQuantity: ticket.soldQuantity,
-      saleStartsAt: ticket.saleStartsAt,
-      saleEndsAt: ticket.saleEndsAt,
-      createdAt: ticket.createdAt,
-      updatedAt: ticket.updatedAt,
-    };
-  }
-
-  /**
    * Create a ticket type for an event
    * @param userId User id
    * @param eventId Event id
-   * @param CreateTicketTypeDto Ticket type dto
+   * @param payload Ticket type(s) dto
    */
   async createTicketType(
     userId: string,
     eventId: string,
-    CreateTicketTypeDto: CreateTicketTypeDto,
+    payload: CreateTicketTypeDto | Array<CreateTicketTypeDto>,
   ) {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
-      select: ['id', 'status', 'endsAt', 'creatorId'],
+      select: ['id', 'status', 'startsAt', 'endsAt', 'creatorId'],
     });
 
     // Check event already exists
@@ -79,44 +54,41 @@ export class TicketService {
       );
     }
 
-    const { name, saleStartsAt, saleEndsAt, totalQuantity } =
-      CreateTicketTypeDto;
+    const ticketTypeDtos = Array.isArray(payload) ? payload : [payload];
+    const ticketTypes = await this.dataSource.transaction(async (manager) => {
+      const entities: TicketType[] = [];
 
-    // Validate input
-    if (!name || !name.trim()) {
-      throw new BadRequestException('Ticket name is required');
-    }
-    if (totalQuantity <= 0) {
-      throw new BadRequestException('Total quantity must be greater than 0');
-    }
-    // Ticket sale must be within event lifespan
-    if (saleStartsAt < event.startsAt || saleEndsAt > event.endsAt) {
-      throw new BadRequestException(
-        'Ticket sale period must fall within event duration',
-      );
-    }
-    if (saleStartsAt >= saleEndsAt) {
-      throw new BadRequestException('Invalid ticket sale timeframe');
-    }
+      for (const dto of ticketTypeDtos) {
+        const { name, saleStartsAt, saleEndsAt, totalQuantity } = dto;
+        const validationErrors = [
+          (!name || !name.trim()) && 'Ticket name is required',
+          totalQuantity <= 0 && 'Total quantity must be greater than 0',
+          (saleStartsAt < event.startsAt || saleEndsAt > event.endsAt) &&
+            'Ticket sale period must fall within event duration',
+          saleStartsAt >= saleEndsAt && 'Invalid ticket sale timeframe',
+        ].filter(Boolean);
 
-    // Transaction creation
-    const ticket = await this.dataSource.transaction(async (manager) => {
-      return await manager.save(
-        manager.create(TicketType, {
-          ...CreateTicketTypeDto,
-          name: name.trim(),
-          reservedQuantity: 0,
-          soldQuantity: 0,
-          saleStartsAt,
-          saleEndsAt,
-          eventId,
-        }),
-      );
+        if (validationErrors.length > 0) {
+          throw new BadRequestException(validationErrors[0] as string);
+        }
+
+        entities.push(
+          manager.create(TicketType, {
+            ...dto,
+            name: name.trim(),
+            reservedQuantity: 0,
+            soldQuantity: 0,
+            eventId,
+          }),
+        );
+      }
+
+      return await manager.save(TicketType, entities);
     });
 
     return {
       message: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
-      ticket: this.mapToTicketTypeResponseDto(ticket),
+      ticketTypes,
     };
   }
 

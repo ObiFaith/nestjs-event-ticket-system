@@ -34,13 +34,9 @@ export class TicketController {
   createType(
     @User('id') userId: string,
     @Param('eventId') eventId: string,
-    @Body() CreateTicketTypeDto: CreateTicketTypeDto,
+    @Body() ticketTypesDto: Array<CreateTicketTypeDto>,
   ) {
-    return this.ticketService.createTicketType(
-      userId,
-      eventId,
-      CreateTicketTypeDto,
-    );
+    return this.ticketService.createTicketType(userId, eventId, ticketTypesDto);
   }
 
   @Get('/events/:eventId/tickets')
