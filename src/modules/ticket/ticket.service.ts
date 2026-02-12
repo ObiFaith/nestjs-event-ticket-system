@@ -23,16 +23,35 @@ export class TicketService {
     private readonly dataSource: DataSource, // For transactions
   ) {}
 
+  validateTicketType(
+    ticketType: CreateTicketTypeDto,
+    eventStartsAt: Date,
+    eventEndsAt: Date,
+  ) {
+    const { name, saleStartsAt, saleEndsAt, totalQuantity } = ticketType;
+    const validationErrors = [
+      (!name || !name.trim()) && 'Ticket name is required',
+      totalQuantity <= 0 && 'Total quantity must be greater than 0',
+      (saleStartsAt < eventStartsAt || saleEndsAt > eventEndsAt) &&
+        'Ticket sale period must fall within event duration',
+      saleStartsAt >= saleEndsAt && 'Invalid ticket sale timeframe',
+    ].filter(Boolean);
+
+    if (validationErrors.length > 0) {
+      throw new BadRequestException(validationErrors[0] as string);
+    }
+  }
+
   /**
    * Create a ticket type for an event
    * @param userId User id
    * @param eventId Event id
-   * @param payload Ticket type(s) dto
+   * @param payload List of Ticket types
    */
   async createTicketType(
     userId: string,
     eventId: string,
-    payload: CreateTicketTypeDto | Array<CreateTicketTypeDto>,
+    payload: Array<CreateTicketTypeDto>,
   ) {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
@@ -54,28 +73,15 @@ export class TicketService {
       );
     }
 
-    const ticketTypeDtos = Array.isArray(payload) ? payload : [payload];
-    const ticketTypes = await this.dataSource.transaction(async (manager) => {
-      const entities: TicketType[] = [];
+    return await this.dataSource.transaction(async (manager) => {
+      const ticketEntities: TicketType[] = [];
 
-      for (const dto of ticketTypeDtos) {
-        const { name, saleStartsAt, saleEndsAt, totalQuantity } = dto;
-        const validationErrors = [
-          (!name || !name.trim()) && 'Ticket name is required',
-          totalQuantity <= 0 && 'Total quantity must be greater than 0',
-          (saleStartsAt < event.startsAt || saleEndsAt > event.endsAt) &&
-            'Ticket sale period must fall within event duration',
-          saleStartsAt >= saleEndsAt && 'Invalid ticket sale timeframe',
-        ].filter(Boolean);
-
-        if (validationErrors.length > 0) {
-          throw new BadRequestException(validationErrors[0] as string);
-        }
-
-        entities.push(
+      for (const dto of payload) {
+        this.validateTicketType(dto, event.startsAt, event.endsAt);
+        ticketEntities.push(
           manager.create(TicketType, {
             ...dto,
-            name: name.trim(),
+            name: dto.name.trim(),
             reservedQuantity: 0,
             soldQuantity: 0,
             eventId,
@@ -83,13 +89,13 @@ export class TicketService {
         );
       }
 
-      return await manager.save(TicketType, entities);
-    });
+      const ticketTypes = await manager.save(TicketType, ticketEntities);
 
-    return {
-      message: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
-      ticketTypes,
-    };
+      return {
+        message: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
+        ticketTypes,
+      };
+    });
   }
 
   async findAllTicketType(eventId: string) {

@@ -1,9 +1,11 @@
-import { Repository } from 'typeorm';
 import { EventResponseDto } from './dto';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateEventDto, UpdateEventDto } from './dto';
+import { TicketService } from '../ticket/ticket.service';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { Event, EventStatus } from './entities/event.entity';
+import { TicketType } from '../ticket/entities/ticket-type.entity';
 import {
   BadRequestException,
   Injectable,
@@ -16,6 +18,8 @@ export class EventService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly ticketService: TicketService,
+    private readonly dataSource: DataSource, // For transactions
   ) {}
 
   /**
@@ -28,7 +32,7 @@ export class EventService {
     userId: string,
     createEventDto: CreateEventDto,
   ): Promise<{ message: string; event: EventResponseDto }> {
-    const { title, startsAt, endsAt } = createEventDto;
+    const { title, startsAt, endsAt, ticketTypes = [] } = createEventDto;
     // Validate input
     if (!title.trim() || !startsAt || !endsAt) {
       throw new BadRequestException('Missing required fields');
@@ -40,19 +44,44 @@ export class EventService {
     }
 
     // create and save event to db
-    const event = await this.eventRepository.save(
-      this.eventRepository.create({
-        ...createEventDto,
-        title: title.trim(),
-        creatorId: userId,
-        status: EventStatus.ACTIVE, // default state
-      }),
-    );
+    return await this.dataSource.transaction(async (manager) => {
+      const event = await manager.save(
+        manager.create(Event, {
+          ...createEventDto,
+          title: title.trim(),
+          creatorId: userId,
+          status: EventStatus.ACTIVE, // default state
+        }),
+      );
 
-    return {
-      message: SYS_MSG.EVENT_CREATED_SUCCESSFULLY,
-      event,
-    };
+      if (ticketTypes?.length > 0) {
+        const ticketEntities: TicketType[] = [];
+
+        for (const dto of ticketTypes) {
+          this.ticketService.validateTicketType(
+            dto,
+            event.startsAt,
+            event.endsAt,
+          );
+          ticketEntities.push(
+            manager.create(TicketType, {
+              ...dto,
+              name: dto.name.trim(),
+              reservedQuantity: 0,
+              soldQuantity: 0,
+              eventId: event.id,
+            }),
+          );
+        }
+
+        await manager.save(TicketType, ticketEntities);
+      }
+
+      return {
+        message: SYS_MSG.EVENT_CREATED_SUCCESSFULLY,
+        event,
+      };
+    });
   }
 
   async findAll(): Promise<{ message: string; events: Event[] }> {

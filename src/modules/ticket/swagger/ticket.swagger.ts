@@ -15,7 +15,7 @@ export function swaggerCreateTicketType() {
         'Only the event creator can add ticket types with limited quantity and sale window.',
     }),
     ApiParam({ name: 'eventId', description: 'Event ID', required: true }),
-    ApiBody({ type: CreateTicketTypeDto, isArray: true }),
+    ApiBody({ type: [CreateTicketTypeDto] }),
     ApiResponse({
       status: 201,
       description: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
