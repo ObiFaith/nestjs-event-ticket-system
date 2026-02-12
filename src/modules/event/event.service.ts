@@ -1,3 +1,4 @@
+import { CLIENT_RENEG_LIMIT } from 'tls';
 import { EventResponseDto } from './dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,49 +33,41 @@ export class EventService {
     userId: string,
     createEventDto: CreateEventDto,
   ): Promise<{ message: string; event: EventResponseDto }> {
-    const { title, startsAt, endsAt, ticketTypes = [] } = createEventDto;
+    const trimmedTitle = createEventDto.title.trim();
+    const { startsAt, endsAt, ticketTypes = [] } = createEventDto;
     // Validate input
-    if (!title.trim() || !startsAt || !endsAt) {
+    if (!trimmedTitle || !startsAt || !endsAt) {
       throw new BadRequestException('Missing required fields');
     }
-
     // validate event interval
     if (startsAt >= endsAt) {
       throw new BadRequestException('Event startsAt must be before endsAt');
     }
+    // Validate ticketType(s)
+    ticketTypes.forEach((dto) =>
+      this.ticketService.validateTicketType(dto, startsAt, endsAt),
+    );
 
     // create and save event to db
     return await this.dataSource.transaction(async (manager) => {
-      const event = await manager.save(
-        manager.create(Event, {
-          ...createEventDto,
-          title: title.trim(),
-          creatorId: userId,
-          status: EventStatus.ACTIVE, // default state
-        }),
-      );
+      const event = await manager.save(Event, {
+        ...createEventDto,
+        title: trimmedTitle,
+        creatorId: userId,
+      });
 
       if (ticketTypes?.length > 0) {
-        const ticketEntities: TicketType[] = [];
+        const ticketEntities = ticketTypes.map((dto) =>
+          manager.create(TicketType, {
+            ...dto,
+            name: dto.name.trim(),
+            reservedQuantity: 0,
+            soldQuantity: 0,
+            eventId: event.id,
+          }),
+        );
 
-        for (const dto of ticketTypes) {
-          this.ticketService.validateTicketType(
-            dto,
-            event.startsAt,
-            event.endsAt,
-          );
-          ticketEntities.push(
-            manager.create(TicketType, {
-              ...dto,
-              name: dto.name.trim(),
-              reservedQuantity: 0,
-              soldQuantity: 0,
-              eventId: event.id,
-            }),
-          );
-        }
-
-        await manager.save(TicketType, ticketEntities);
+        await manager.insert(TicketType, ticketEntities);
       }
 
       return {

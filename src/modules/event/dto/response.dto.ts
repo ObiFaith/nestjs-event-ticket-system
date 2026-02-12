@@ -18,7 +18,7 @@ export class EventResponseDto {
     description: 'Description of the event',
     example: 'React Conference 2026 keynote speakers are...',
   })
-  description: string;
+  description?: string;
 
   @ApiProperty({
     description: 'Event start date/time',

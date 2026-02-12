@@ -73,29 +73,21 @@ export class TicketService {
       );
     }
 
-    return await this.dataSource.transaction(async (manager) => {
-      const ticketEntities: TicketType[] = [];
-
-      for (const dto of payload) {
-        this.validateTicketType(dto, event.startsAt, event.endsAt);
-        ticketEntities.push(
-          manager.create(TicketType, {
-            ...dto,
-            name: dto.name.trim(),
-            reservedQuantity: 0,
-            soldQuantity: 0,
-            eventId,
-          }),
-        );
-      }
-
-      const ticketTypes = await manager.save(TicketType, ticketEntities);
-
-      return {
-        message: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
-        ticketTypes,
-      };
+    const ticketTypes = payload.map((dto) => {
+      this.validateTicketType(dto, event.startsAt, event.endsAt);
+      return this.ticketTypeRepository.create({
+        ...dto,
+        name: dto.name.trim(),
+        eventId,
+      });
     });
+
+    await this.ticketTypeRepository.insert(ticketTypes);
+
+    return {
+      message: SYS_MSG.TICKET_TYPE_CREATED_SUCCESSFULLY,
+      ticketTypes,
+    };
   }
 
   async findAllTicketType(eventId: string) {

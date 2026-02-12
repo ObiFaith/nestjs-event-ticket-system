@@ -58,5 +58,5 @@ export class CreateEventDto {
   })
   @ValidateNested({ each: true })
   @Type(() => CreateTicketTypeDto)
-  ticketTypes?: [CreateTicketTypeDto];
+  ticketTypes?: Array<CreateTicketTypeDto>;
 }
