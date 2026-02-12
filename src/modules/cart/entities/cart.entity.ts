@@ -1,6 +1,6 @@
 import { CartItem } from './cart-item.entity';
 import { User } from '../../user/entities/user.entity';
-import { BaseEntity } from '../../common/entities/base-entity';
+import { BaseEntity } from '../../../common/entities/base-entity';
 import {
   Column,
   Entity,

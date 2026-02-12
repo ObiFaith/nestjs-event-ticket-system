@@ -1,5 +1,5 @@
 import { Cart } from './cart.entity';
-import { BaseEntity } from '../../common/entities/base-entity';
+import { BaseEntity } from '../../../common/entities/base-entity';
 import { TicketType } from '../../ticket/entities/ticket-type.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 

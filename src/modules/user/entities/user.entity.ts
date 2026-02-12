@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Cart } from '../../cart/entities/cart.entity';
 import { Event } from '../../event/entities/event.entity';
-import { BaseEntity } from '../../common/entities/base-entity';
+import { BaseEntity } from '../../../common/entities/base-entity';
 
 @Entity('users')
 export class User extends BaseEntity {

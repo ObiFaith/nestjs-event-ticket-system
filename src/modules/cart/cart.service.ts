@@ -3,9 +3,9 @@ import { CartItem } from './entities/cart-item.entity';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { Cart, CartStatus } from './entities/cart.entity';
 import { DataSource, In, MoreThan, Repository } from 'typeorm';
-import { TicketType } from 'src/ticket/entities/ticket-type.entity';
-import { Event, EventStatus } from 'src/event/entities/event.entity';
 import { CartItemDto, CartItemResponseDto, CartResponseDto } from './dto';
+import { TicketType } from 'src/modules/ticket/entities/ticket-type.entity';
+import { Event, EventStatus } from 'src/modules/event/entities/event.entity';
 import {
   BadRequestException,
   Injectable,

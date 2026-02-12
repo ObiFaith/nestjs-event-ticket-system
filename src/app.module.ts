@@ -2,13 +2,13 @@ import configuration from './config';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
+import { CartModule } from './modules/cart/cart.module';
+import { UserModule } from './modules/user/user.module';
+import { EventModule } from './modules/event/event.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HealthModule } from './health/health.module';
-import { UserModule } from './user/user.module';
-import { TicketModule } from './ticket/ticket.module';
-import { EventModule } from './event/event.module';
-import { CartModule } from './cart/cart.module';
-import { AuthModule } from './auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
+import { TicketModule } from './modules/ticket/ticket.module';
 
 @Module({
   imports: [

@@ -1,25 +1,11 @@
 import { TicketService } from './ticket.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User } from 'src/user/decorator/user.decorator';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guard/jwt-auth.guard';
+import { User } from 'src/modules/user/decorator/user.decorator';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { swaggerCreateTicketType, swaggerGetAllTicketTypes, swaggerGetTicketType, swaggerUpdateTicketType } from './swagger/ticket.swagger';
 import { CreateTicketTypeDto, UpdateTicketTypeDto } from './dto';
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  swaggerCreateTicketType,
-  swaggerGetAllTicketTypes,
-  swaggerGetTicketType,
-  swaggerUpdateTicketType,
-} from './swagger/ticket.swagger';
+
 
 @Controller()
 @ApiBearerAuth()

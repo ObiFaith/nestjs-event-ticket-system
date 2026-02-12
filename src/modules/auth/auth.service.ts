@@ -1,10 +1,10 @@
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserResponseDto } from 'src/user/dto';
-import { UserService } from 'src/user/user.service';
-import { User } from 'src/user/entities/user.entity';
+import { UserResponseDto } from 'src/modules/user/dto';
 import * as SYS_MSG from 'src/constants/system-messages';
+import { UserService } from 'src/modules/user/user.service';
+import { User } from 'src/modules/user/entities/user.entity';
 import { AuthResponseDto, LoginDto, RegisterDto } from './dto';
 import { ConflictException, Injectable } from '@nestjs/common';
 

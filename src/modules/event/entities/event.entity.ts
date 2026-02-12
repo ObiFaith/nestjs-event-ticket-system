@@ -1,5 +1,5 @@
 import { User } from '../../user/entities/user.entity';
-import { BaseEntity } from '../../common/entities/base-entity';
+import { BaseEntity } from '../../../common/entities/base-entity';
 import { TicketType } from '../../ticket/entities/ticket-type.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 

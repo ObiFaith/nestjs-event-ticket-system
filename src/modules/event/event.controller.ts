@@ -1,25 +1,11 @@
 import { EventService } from './event.service';
 import { CreateEventDto, UpdateEventDto } from './dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User } from 'src/user/decorator/user.decorator';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  swaggerCreateEvent,
-  swaggerGetEventById,
-  swaggerGetEvents,
-  swaggerUpdateEvent,
-} from './swagger/event.swagger';
+import { JwtAuthGuard } from 'src/modules/auth/guard/jwt-auth.guard';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { swaggerCreateEvent, swaggerGetEventById, swaggerGetEvents, swaggerUpdateEvent } from './swagger/event.swagger';
+import { User } from '../user/decorator/user.decorator';
+
 
 @ApiBearerAuth()
 @ApiTags('Events')

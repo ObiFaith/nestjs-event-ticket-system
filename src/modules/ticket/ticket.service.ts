@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as SYS_MSG from 'src/constants/system-messages';
 import { TicketType } from './entities/ticket-type.entity';
 import { CreateTicketTypeDto, UpdateTicketTypeDto } from './dto';
-import { Event, EventStatus } from 'src/event/entities/event.entity';
+import { Event, EventStatus } from 'src/modules/event/entities/event.entity';
 import {
   BadRequestException,
   ForbiddenException,
