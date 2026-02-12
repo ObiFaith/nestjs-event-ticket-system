@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, OneToMany } from 'typeorm';
 import { Cart } from '../../cart/entities/cart.entity';
 import { Event } from '../../event/entities/event.entity';
 import { BaseEntity } from '../../../common/entities/base-entity';
@@ -16,4 +16,11 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];
+
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
+  deletedAt: Date | null;
 }

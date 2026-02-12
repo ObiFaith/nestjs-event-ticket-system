@@ -1,11 +1,26 @@
 import { EventService } from './event.service';
 import { CreateEventDto, UpdateEventDto } from './dto';
+import { User } from '../user/decorator/user.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guard/jwt-auth.guard';
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { swaggerCreateEvent, swaggerGetEventById, swaggerGetEvents, swaggerUpdateEvent } from './swagger/event.swagger';
-import { User } from '../user/decorator/user.decorator';
-
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  swaggerCreateEvent,
+  swaggerGetEventById,
+  swaggerGetEvents,
+  swaggerUpdateEvent,
+} from './swagger/event.swagger';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -26,20 +41,30 @@ export class EventController {
 
   @Get()
   @swaggerGetEvents()
-  async getAll() {
+  async findAll() {
     return this.eventService.findAll();
   }
 
   @Get(':id')
   @swaggerGetEventById()
-  async getOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.eventService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @swaggerUpdateEvent()
-  async update(@Param('id') id: string, @Body() updateDto: UpdateEventDto) {
-    return this.eventService.update(id, updateDto);
+  async update(
+    @User('id') userId: string,
+    @Param('id') id: string,
+    @Body() updateDto: UpdateEventDto,
+  ) {
+    return this.eventService.update(id, userId, updateDto);
+  }
+
+  @Delete(':id')
+  @swaggerGetEventById()
+  async softDelete(@User('id') userId: string, @Param('id') id: string) {
+    return this.eventService.softDelete(id, userId);
   }
 }

@@ -9,6 +9,7 @@ import { Event, EventStatus } from './entities/event.entity';
 import { TicketType } from '../ticket/entities/ticket-type.entity';
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -95,11 +96,15 @@ export class EventService {
     };
   }
 
-  async update(id: string, updateDto: UpdateEventDto) {
+  async update(id: string, userId: string, updateDto: UpdateEventDto) {
     const { event } = await this.findOne(id);
-    Object.assign(event, updateDto);
+
+    if (event.creatorId !== userId) {
+      throw new ForbiddenException('Only the creator can update event');
+    }
 
     try {
+      Object.assign(event, updateDto);
       const updatedEvent = await this.eventRepository.save(event);
 
       return {
@@ -109,5 +114,23 @@ export class EventService {
     } catch {
       throw new InternalServerErrorException('Failed to update event');
     }
+  }
+
+  async softDelete(id: string, userId: string) {
+    const event = await this.eventRepository.findOneBy({ id });
+
+    if (!event || event.deletedAt) {
+      throw new NotFoundException(SYS_MSG.EVENT_NOT_FOUND);
+    }
+    if (event.creatorId !== userId) {
+      throw new ForbiddenException('Only the creator can delete event');
+    }
+    if (event.status === EventStatus.CANCELLED) {
+      return; // idempotent
+    }
+
+    event.status = EventStatus.CANCELLED;
+    event.deletedAt = new Date();
+    await this.eventRepository.save(event);
   }
 }

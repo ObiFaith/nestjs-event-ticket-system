@@ -16,14 +16,8 @@ export function swaggerCreateEvent() {
       description: SYS_MSG.EVENT_CREATED_SUCCESSFULLY,
       type: EventResponseDto,
     }),
-    ApiResponse({
-      status: 400,
-      description: SYS_MSG.BAD_REQUEST,
-    }),
-    ApiResponse({
-      status: 401,
-      description: SYS_MSG.UNAUTHORIZED,
-    }),
+    ApiResponse({ status: 400, description: SYS_MSG.BAD_REQUEST }),
+    ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
   );
 }
 
@@ -48,10 +42,7 @@ export function swaggerGetEventById() {
       summary: 'Get event by ID',
       description: 'Retrieve a single event by its ID.',
     }),
-    ApiParam({
-      name: 'id',
-      description: 'Event unique identifier',
-    }),
+    ApiParam({ name: 'id', description: 'Event unique identifier' }),
     ApiResponse({
       status: 200,
       description: 'Event retrieved successfully',
@@ -68,10 +59,7 @@ export function swaggerUpdateEvent() {
       summary: 'Update an event',
       description: 'Update an existing event.',
     }),
-    ApiParam({
-      name: 'id',
-      description: 'Event unique identifier',
-    }),
+    ApiParam({ name: 'id', description: 'Event unique identifier' }),
     ApiBody({ type: UpdateEventDto }),
     ApiResponse({
       status: 200,
@@ -81,6 +69,7 @@ export function swaggerUpdateEvent() {
     ApiResponse({ status: 400, description: SYS_MSG.BAD_REQUEST }),
     ApiResponse({ status: 404, description: SYS_MSG.EVENT_NOT_FOUND }),
     ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
+    ApiResponse({ status: 403, description: SYS_MSG.FORBIDDEN }),
   );
 }
 
@@ -90,14 +79,10 @@ export function swaggerDeleteEvent() {
       summary: 'Delete an event',
       description: 'Delete an existing event by ID.',
     }),
-    ApiParam({
-      name: 'id',
-      description: 'Event unique identifier',
-    }),
-    ApiResponse({
-      status: 204,
-    }),
+    ApiParam({ name: 'id', description: 'Event unique identifier' }),
+    ApiResponse({ status: 204 }),
     ApiResponse({ status: 404, description: SYS_MSG.EVENT_NOT_FOUND }),
     ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
+    ApiResponse({ status: 403, description: SYS_MSG.FORBIDDEN }),
   );
 }

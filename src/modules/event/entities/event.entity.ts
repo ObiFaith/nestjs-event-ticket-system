@@ -1,7 +1,7 @@
 import { User } from '../../user/entities/user.entity';
 import { BaseEntity } from '../../../common/entities/base-entity';
 import { TicketType } from '../../ticket/entities/ticket-type.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 export enum EventStatus {
   ACTIVE = 'ACTIVE',
@@ -43,4 +43,11 @@ export class Event extends BaseEntity {
 
   @OneToMany(() => TicketType, (ticket) => ticket.event)
   ticketTypes: TicketType[];
+
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
+  deletedAt: Date | null;
 }
