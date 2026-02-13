@@ -1,4 +1,3 @@
-import { CLIENT_RENEG_LIMIT } from 'tls';
 import { EventResponseDto } from './dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -86,6 +85,18 @@ export class EventService {
     };
   }
 
+  async findUserEvents(userId: string) {
+    const events = await this.eventRepository.find({
+      where: { creatorId: userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      message: SYS_MSG.USER_EVENTS_RETRIEVED_SUCCESSFULLY,
+      events,
+    };
+  }
+
   async findOne(id: string): Promise<{ message: string; event: Event }> {
     const event = await this.eventRepository.findOne({ where: { id } });
     if (!event) throw new NotFoundException(SYS_MSG.EVENT_NOT_FOUND);
@@ -116,7 +127,7 @@ export class EventService {
     }
   }
 
-  async softDelete(id: string, userId: string) {
+  async delete(id: string, userId: string) {
     const event = await this.eventRepository.findOneBy({ id });
 
     if (!event || event.deletedAt) {

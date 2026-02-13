@@ -1,7 +1,14 @@
 import { User } from '../../user/entities/user.entity';
 import { BaseEntity } from '../../../common/entities/base-entity';
 import { TicketType } from '../../ticket/entities/ticket-type.entity';
-import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 export enum EventStatus {
   ACTIVE = 'ACTIVE',

@@ -53,6 +53,21 @@ export function swaggerGetEventById() {
   );
 }
 
+export function swaggerGetUserEvents() {
+  return applyDecorators(
+    ApiOperation({
+      summary: "Get current user's events",
+      description: 'Retrieve all events created by the authenticated user.',
+    }),
+    ApiResponse({
+      status: 200,
+      description: SYS_MSG.USER_EVENTS_RETRIEVED_SUCCESSFULLY,
+      type: [EventResponseDto],
+    }),
+    ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
+  );
+}
+
 export function swaggerUpdateEvent() {
   return applyDecorators(
     ApiOperation({
@@ -80,7 +95,7 @@ export function swaggerDeleteEvent() {
       description: 'Delete an existing event by ID.',
     }),
     ApiParam({ name: 'id', description: 'Event unique identifier' }),
-    ApiResponse({ status: 204 }),
+    ApiResponse({ status: 204, description: 'Event deleted successfully' }),
     ApiResponse({ status: 404, description: SYS_MSG.EVENT_NOT_FOUND }),
     ApiResponse({ status: 401, description: SYS_MSG.UNAUTHORIZED }),
     ApiResponse({ status: 403, description: SYS_MSG.FORBIDDEN }),

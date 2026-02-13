@@ -17,6 +17,8 @@ export const EVENT_CREATED_SUCCESSFULLY = 'Event created successfully';
 export const EVENT_UPDATED_SUCCESSFULLY = 'Event updated successfully';
 export const EVENT_RETRIEVED_SUCCESSFULLY = 'Event retrieved successfully';
 export const EVENTS_RETRIEVED_SUCCESSFULLY = 'Events retrieved successfully';
+export const USER_EVENTS_RETRIEVED_SUCCESSFULLY =
+  'User events retrieved successfully';
 
 // Ticket
 export const TICKET_TYPE_NOT_FOUND = 'Ticket type not found';

@@ -17,8 +17,10 @@ import {
 } from '@nestjs/common';
 import {
   swaggerCreateEvent,
+  swaggerDeleteEvent,
   swaggerGetEventById,
   swaggerGetEvents,
+  swaggerGetUserEvents,
   swaggerUpdateEvent,
 } from './swagger/event.swagger';
 
@@ -29,8 +31,8 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   @swaggerCreateEvent()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
     @User('id') userId: string,
@@ -45,6 +47,13 @@ export class EventController {
     return this.eventService.findAll();
   }
 
+  @Get('me')
+  @swaggerGetUserEvents()
+  @UseGuards(JwtAuthGuard)
+  async findUserEvents(@User('id') userId: string) {
+    return this.eventService.findUserEvents(userId);
+  }
+
   @Get(':id')
   @swaggerGetEventById()
   async findOne(@Param('id') id: string) {
@@ -52,8 +61,8 @@ export class EventController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
   @swaggerUpdateEvent()
+  @UseGuards(JwtAuthGuard)
   async update(
     @User('id') userId: string,
     @Param('id') id: string,
@@ -63,8 +72,10 @@ export class EventController {
   }
 
   @Delete(':id')
-  @swaggerGetEventById()
-  async softDelete(@User('id') userId: string, @Param('id') id: string) {
-    return this.eventService.softDelete(id, userId);
+  @swaggerDeleteEvent()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(@User('id') userId: string, @Param('id') id: string) {
+    return this.eventService.delete(id, userId);
   }
 }
