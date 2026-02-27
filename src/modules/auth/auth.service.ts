@@ -24,20 +24,22 @@ export class AuthService {
   private mapToUserResponseDto(user: User): UserResponseDto {
     return {
       id: user.id,
+      lastName: user.lastName,
+      firstName: user.firstName,
       email: user.email,
-      created_at: user.createdAt,
-      updated_at: user.updatedAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 
   generateToken(id: string) {
-    const accessToken = this.jwtService.sign(
+    const token = this.jwtService.sign(
       {
         id,
       },
       { secret: this.configService.get<string>('jwt.secret'), expiresIn: '1h' },
     );
-    return { access_token: accessToken };
+    return token;
   }
 
   /**
@@ -66,7 +68,7 @@ export class AuthService {
     return {
       message: SYS_MSG.USER_CREATED_SUCCESSFULLY,
       user: this.mapToUserResponseDto(user),
-      ...token,
+      token,
     };
   }
 
@@ -95,7 +97,7 @@ export class AuthService {
     return {
       message: SYS_MSG.USER_LOGIN_SUCCESSFULLY,
       user: this.mapToUserResponseDto(existingUser),
-      ...token,
+      token,
     };
   }
 }

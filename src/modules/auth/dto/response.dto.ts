@@ -9,5 +9,5 @@ export class AuthResponseDto {
   user: UserResponseDto;
 
   @ApiProperty()
-  access_token: string;
+  token: string;
 }

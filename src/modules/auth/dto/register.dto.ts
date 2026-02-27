@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsString,
   Matches,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 
@@ -15,6 +16,24 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsEmail({}, { message: 'Email must be valid' })
   email: string;
+
+  @ApiProperty({
+    example: 'John',
+    description: 'User first name',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100, { message: 'First name must not exceed 100 characters' })
+  firstName: string;
+
+  @ApiProperty({
+    example: 'Doe',
+    description: 'User last name',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100, { message: 'Last name must not exceed 100 characters' })
+  lastName: string;
 
   @ApiProperty({
     description:

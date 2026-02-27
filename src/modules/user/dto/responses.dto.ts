@@ -8,10 +8,16 @@ export class UserResponseDto {
   email: string;
 
   @ApiProperty()
-  created_at: Date;
+  lastName: string;
 
   @ApiProperty()
-  updated_at: Date;
+  firstName: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 }
 
 export class GetUsersResponseDto {
